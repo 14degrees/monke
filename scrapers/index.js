@@ -205,7 +205,7 @@ const inaturalist = {
   name: 'inaturalist',
   async *run({ pages = 5 }) {
     for (let p = 1; p <= pages; p++) {
-      let res; try { res = await get(`https://api.inaturalist.org/v1/observations?taxon_name=Primates&photos=true&quality_grade=research&order_by=votes&per_page=200&page=${p}`); } catch (e) { console.warn('[inaturalist]', e.message); break; }
+      let res; try { res = await get(`https://api.inaturalist.org/v1/observations?taxon_id=43367&photos=true&quality_grade=research&order_by=votes&per_page=200&page=${p}`); } catch (e) { console.warn('[inaturalist]', e.message); break; }
       yield (res.results || []).map(o => {
         const ph = o.photos?.[0]; if (!ph) return null;
         return {
