@@ -1,0 +1,24 @@
+{
+  "name": "monke",
+  "version": "0.1.0",
+  "description": "Exhaustive, sourced archive of monkey memes, videos, gifs and images + a grid browser",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node scripts/seed.js",
+    "scrape": "node scripts/scrape.js",
+    "scrape:loop": "node scripts/scrape.js --loop",
+    "discover": "node scripts/discover.js",
+    "enrich": "node scripts/enrich.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "mongodb": "^6.12.0"
+  }
+}

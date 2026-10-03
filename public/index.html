@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>monke archive</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐒</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <a class="logo" href="./" title="reset">🐒 <b>monke</b><span>archive</span></a>
+    <form id="searchForm" class="search" role="search">
+      <input id="q" type="search" placeholder="search monkeys… (harambe, phone, chimp office, 90s ad)" autocomplete="off">
+    </form>
+    <select id="sort" aria-label="sort">
+      <option value="new">newest</option>
+      <option value="top">top score</option>
+      <option value="random">random</option>
+      <option value="old">oldest</option>
+    </select>
+    <div class="size" title="tile size"><input id="size" type="range" min="140" max="420" step="20" value="240" aria-label="tile size"></div>
+    <button id="adminBtn" class="ghost" title="scrapers & agent">⚙︎</button>
+  </header>
+
+  <nav class="filters">
+    <div class="row" id="types"></div>
+    <div class="row scroll" id="sources"></div>
+    <div class="row scroll" id="tags"></div>
+  </nav>
+
+  <div class="meta"><span id="count"></span><span id="active"></span></div>
+  <main id="grid" class="grid"></main>
+  <div id="sentinel" class="sentinel">loading…</div>
+
+  <dialog id="lightbox">
+    <button class="close" data-close aria-label="close">✕</button>
+    <button class="nav prev" data-prev aria-label="previous">‹</button>
+    <button class="nav next" data-next aria-label="next">›</button>
+    <div class="lb">
+      <div class="stage" id="stage"></div>
+      <aside class="info">
+        <h2 id="lbTitle"></h2>
+        <div class="badges" id="lbBadges"></div>
+        <p id="lbDesc"></p>
+        <div class="tags" id="lbTags"></div>
+        <div class="actions">
+          <a id="lbSource" class="btn primary" target="_blank" rel="noopener noreferrer">open source ↗</a>
+          <a id="lbMedia" class="btn" target="_blank" rel="noopener noreferrer">raw media ↗</a>
+          <button id="lbCopy" class="btn">copy link</button>
+        </div>
+        <p class="via" id="lbVia"></p>
+      </aside>
+    </div>
+  </dialog>
+
+  <dialog id="admin">
+    <button class="close" data-close aria-label="close">✕</button>
+    <h2>collectors</h2>
+    <p class="muted" id="adminStore"></p>
+    <label class="tok" id="tokRow" hidden>admin token <input id="token" type="password"></label>
+    <section>
+      <h3>scrapers</h3>
+      <div id="scraperList" class="chips"></div>
+      <button id="runScrape" class="btn primary">run scrape pass</button>
+    </section>
+    <section>
+      <h3>claude discovery agent</h3>
+      <textarea id="brief" rows="3" placeholder="brief, e.g. 'every monkey in a Japanese TV commercial' — blank = random default brief"></textarea>
+      <button id="runAgent" class="btn primary">send the agent</button>
+    </section>
+    <section>
+      <h3>add a link</h3>
+      <form id="addForm" class="add"><input id="addUrl" type="url" placeholder="https://…" required><input id="addTags" placeholder="tags, comma separated"><button class="btn">add</button></form>
+    </section>
+    <section>
+      <h3>log</h3>
+      <pre id="log"></pre>
+    </section>
+  </dialog>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
