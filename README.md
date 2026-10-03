@@ -59,3 +59,11 @@ Keyless sources: Reddit, YouTube (HTML fallback), Commons, Openverse, iNaturalis
   tags: [], via: ['swarm:memes', 'scrape:reddit', 'agent', ...], score, author, year, nsfw,
   discovered_at, updated_at }
 ```
+
+## Seed coverage (`data/swarm.json`)
+
+471 sourced items: 247 videos, 67 meme pages, 53 gifs, 51 articles, 47 images, plus a few audio items and accounts. The sweeps that filled it covered meme formats, commercials, stock footage, viral moments and a few gifs. The film/TV, social, music and deep-cuts sweeps returned nothing because the swarm session ran out of web searches. Run the discovery agent on those briefs to fill them:
+
+```bash
+npm run discover   # the default briefs cover all four
+```
