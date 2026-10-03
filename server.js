@@ -6,7 +6,7 @@ import { openStore } from './lib/store.js';
 import { normalize } from './lib/normalize.js';
 import { enrichDoc } from './lib/og.js';
 import { scrapePass } from './lib/runner.js';
-import { runDiscovery, DEFAULT_BRIEFS } from './lib/agent.js';
+import { runDiscovery, DEFAULT_BRIEFS, agentAvailable } from './lib/agent.js';
 import { SCRAPERS } from './scrapers/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -60,7 +60,7 @@ app.get('/api/status', async (_req, res, next) => {
   try {
     res.json({
       store: store.kind, scrapers: Object.entries(SCRAPERS).map(([n, s]) => ({ name: n, enabled: (s.needs || []).every(k => process.env[k]) })),
-      agent: !!process.env.ANTHROPIC_API_KEY, running: { scrape: !!jobs.scrape, discover: !!jobs.discover }, log: jobs.log.slice(0, 60),
+      agent: agentAvailable(), running: { scrape: !!jobs.scrape, discover: !!jobs.discover }, log: jobs.log.slice(0, 60),
       runs: await store.recentRuns(30), briefs: DEFAULT_BRIEFS, adminRequired: !!process.env.ADMIN_TOKEN,
     });
   } catch (e) { next(e); }
@@ -74,7 +74,7 @@ app.post('/api/scrape', admin, (req, res) => {
 });
 
 app.post('/api/discover', admin, (req, res) => {
-  if (!process.env.ANTHROPIC_API_KEY) return res.status(400).json({ error: 'ANTHROPIC_API_KEY not set on server' });
+  if (!agentAvailable()) return res.status(400).json({ error: 'set ANTHROPIC_API_KEY or OPENROUTER_API_KEY on the server' });
   if (jobs.discover) return res.status(409).json({ error: 'already running' });
   const brief = String(req.body?.brief || '').trim() || DEFAULT_BRIEFS[Math.floor(Math.random() * DEFAULT_BRIEFS.length)];
   jlog(`agent ▶ ${brief}`);
@@ -88,7 +88,7 @@ app.use((err, _req, res, _next) => { console.error(err); res.status(500).json({ 
 const every = (min, fn) => { if (min > 0) { setTimeout(fn, 30000); setInterval(fn, min * 60000); } };
 every(Number(process.env.AUTO_SCRAPE_MIN || 0), () => { if (!jobs.scrape) jobs.scrape = scrapePass(store, { log: jlog }).finally(() => { jobs.scrape = null; }); });
 every(Number(process.env.AUTO_DISCOVER_MIN || 0), () => {
-  if (jobs.discover || !process.env.ANTHROPIC_API_KEY) return;
+  if (jobs.discover || !agentAvailable()) return;
   const brief = DEFAULT_BRIEFS[Math.floor(Math.random() * DEFAULT_BRIEFS.length)];
   jobs.discover = runDiscovery({ store, brief, log: jlog }).catch(e => jlog(`agent ✗ ${e.message}`)).finally(() => { jobs.discover = null; });
 });

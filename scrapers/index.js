@@ -2,6 +2,7 @@
 // raw = { url, title, media_type?, media_url?, thumb?, description?, tags?, score?, author?, created_at?, nsfw? }
 import { get, decodeEntities, sleep } from '../lib/http.js';
 import { PRIMATE_RE } from '../lib/normalize.js';
+import { fetchPage, slugTitle, MEDIA_LINK } from '../lib/harvest.js';
 
 const env = (k) => process.env[k];
 const q = encodeURIComponent;
@@ -341,4 +342,30 @@ const flickr = {
   },
 };
 
-export const SCRAPERS = { reddit, youtube, commons, giphy, tenor, openverse, inaturalist, archive, imgur, pixabay, pexels, lemmy, knowyourmeme, flickr };
+// ─────────────── Harvest (keyless gif/meme search pages) ───────────────
+// Fetches giphy/tenor/imgflip search pages for species × modifier combos and keeps the item links.
+const SPECIES = ['monkey', 'monke', 'ape', 'chimp', 'chimpanzee', 'gorilla', 'orangutan', 'baboon', 'macaque', 'capuchin', 'lemur', 'bonobo', 'harambe', 'snow monkey', 'spider monkey', 'baby monkey'];
+const MODS = ['', 'reaction', 'funny', 'dancing', 'thinking', 'side eye', 'confused', 'screaming', 'laughing', 'typing', 'phone', 'suit', 'meme', 'shocked', 'clapping', 'eating', 'sad', 'angry', 'vibing', 'sunglasses'];
+const harvest = {
+  name: 'harvest',
+  async *run({ pages = 3 }) {
+    const terms = [];
+    for (const sp of SPECIES) for (const m of MODS.slice(0, Math.max(4, pages * 6))) terms.push(`${m} ${sp}`.trim());
+    for (const term of terms) {
+      const slug = term.replace(/\s+/g, '-');
+      for (const [site, url] of [
+        ['giphy', `https://giphy.com/search/${encodeURIComponent(slug)}`],
+        ['tenor', `https://tenor.com/search/${encodeURIComponent(slug)}-gifs`],
+        ...(term.split(' ').length <= 2 ? [['imgflip', `https://imgflip.com/memesearch?q=${encodeURIComponent(term)}`]] : []),
+      ]) {
+        let page; try { page = await fetchPage(url, { jina: 'fallback' }); } catch (e) { console.warn(`[harvest] ${e.message}`); continue; }
+        yield page.media_links
+          .filter(u => MEDIA_LINK.test(u) && (site === 'imgflip' ? /imgflip\.com\/(i|memegenerator)\//.test(u) && PRIMATE_RE.test(u.replace(/[-_/]/g, ' ')) : new RegExp(site).test(u)))
+          .map(u => { const t = slugTitle(u); return { url: u, title: t === u || t.length < 3 ? `${term} gif` : t, media_type: site === 'imgflip' ? 'meme' : 'gif', tags: [site, ...term.split(' ')] }; });
+        await sleep(800);
+      }
+    }
+  },
+};
+
+export const SCRAPERS = { harvest, reddit, youtube, commons, giphy, tenor, openverse, inaturalist, archive, imgur, pixabay, pexels, lemmy, knowyourmeme, flickr };

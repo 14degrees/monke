@@ -198,7 +198,7 @@ let pollTimer;
 async function refreshAdmin() {
   try {
     const s = await api('/api/status');
-    $('#adminStore').textContent = `store: ${s.store}${s.store === 'memory' ? ' (set MONGODB_URI to persist)' : ''} · agent ${s.agent ? 'ready' : 'needs ANTHROPIC_API_KEY'}` +
+    $('#adminStore').textContent = `store: ${s.store}${s.store === 'memory' ? ' (set MONGODB_URI to persist)' : ''} · agent ${s.agent ? 'ready' : 'needs ANTHROPIC_API_KEY or OPENROUTER_API_KEY'}` +
       `${s.running.scrape ? ' · scraping…' : ''}${s.running.discover ? ' · agent hunting…' : ''}`;
     $('#tokRow').hidden = !s.adminRequired;
     $('#scraperList').innerHTML = s.scrapers.map(x => `<span class="chip ${x.enabled ? '' : 'off'}" title="${x.enabled ? 'enabled' : 'missing API key'}">${x.name}</span>`).join('');
